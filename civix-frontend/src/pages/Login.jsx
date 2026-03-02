@@ -24,7 +24,7 @@ function Login() {
     if (result.success) {
       toast.success("Login successful! Welcome back.");
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/');
       }, 1000);
     } else {
       setError(result.message);
@@ -37,7 +37,7 @@ function Login() {
       const result = await googleLogin(codeResponse.code);
       if (result.success) {
         toast.success("Google Login successful!");
-        navigate('/dashboard');
+        navigate('/');
       } else {
         setError(result.message);
         toast.error(result.message);

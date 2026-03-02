@@ -45,9 +45,9 @@ function Home() {
             </p>
 
             <div className="home-hero-buttons">
-              <button className="home-primary-btn">
+              <Link to="/create-petition" className="home-primary-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
                 Create Petition
-              </button>
+              </Link>
               <button className="home-secondary-btn">
                 Explore Issues
               </button>
