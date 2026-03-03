@@ -71,11 +71,22 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
+const petitionRoutes = require('./src/routes/petitionRoutes');
 
-// Health Check - server updated to port 5001 (AirPlay conflict on 5000)
-app.get('/', (req, res) => {
-  res.send('Civix Backend is running');
+app.use('/api/auth', authRoutes);
+app.use('/api/petitions', petitionRoutes);
+
+// Serve the frontend application
+const path = require('path');
+const frontendDistPath = path.join(__dirname, '../civix-frontend/dist');
+app.use(express.static(frontendDistPath));
+
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  } else {
+    next();
+  }
 });
 
 // Database Connection
