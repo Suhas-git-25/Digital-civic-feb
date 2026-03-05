@@ -26,7 +26,7 @@ const PetitionDetail = () => {
         try {
             setLoading(true);
             const data = await petitionService.getPetitionById(id);
-            setPetition(data.data);
+            setPetition(data);
         } catch (err) {
             setError('Failed to load petition details.');
             console.error(err);
@@ -77,54 +77,54 @@ const PetitionDetail = () => {
         );
     }
 
-    const isSigned = petition.signatures?.includes(user?._id) || petition.isSigned;
+    const isSigned = petition.isSigned || false;
     const canSign = user?.role === 'citizen' && petition.status === 'active' && !isSigned;
 
     return (
         <div className="dashboard-wrapper">
             <Sidebar />
 
-            <main className="dashboard-content" style={{ maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+            <main className="dashboard-content" style={{ maxWidth: '1000px', margin: '0', width: '100%' }}>
                 <button
                     onClick={() => navigate('/petitions')}
-                    style={{ background: 'none', border: 'none', color: '#4a5568', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '20px', fontWeight: '600' }}
+                    style={{ background: 'none', border: 'none', color: '#4a5568', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '18px', fontWeight: '600' }}
                 >
                     <ArrowLeft size={18} /> Back to Petitions
                 </button>
 
-                <div className="card" style={{ padding: '40px', borderRadius: '16px', background: '#fff', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>
-                        <h1 style={{ margin: 0, fontSize: '2.25rem', color: '#1a202c' }}>{petition.title}</h1>
+                <div className="card" style={{ padding: '25px 25px', borderRadius: '12px', background: '#fff', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                        <h1 style={{ margin: 0, fontSize: '1.8rem', color: '#1a202c' }}>{petition.title}</h1>
                         <StatusBadge status={petition.status} />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '25px', marginBottom: '25px', padding: '12px 20px', background: '#f8fafc', borderRadius: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#4a5568' }}>
-                            <Tag size={20} />
-                            <div>
-                                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' }}>Category</span>
-                                <span style={{ fontWeight: '500' }}>{petition.category}</span>
+                            <Tag size={18} />
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#718096' }}>Category:</span>
+                                <span style={{ fontWeight: '600', fontSize: '1rem' }}>{petition.category}</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#4a5568' }}>
-                            <MapPin size={20} />
-                            <div>
-                                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' }}>Location</span>
-                                <span style={{ fontWeight: '500' }}>{petition.location}</span>
+                            <MapPin size={18} />
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#718096' }}>Location:</span>
+                                <span style={{ fontWeight: '600', fontSize: '1rem' }}>{petition.location}</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#4a5568' }}>
-                            <Users size={20} />
-                            <div>
-                                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' }}>Signatures</span>
+                            <Users size={18} />
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#718096' }}>Signatures:</span>
                                 <span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#2d3748' }}>{petition.signatureCount || 0}</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#4a5568' }}>
-                            <Calendar size={20} />
-                            <div>
-                                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' }}>Created</span>
-                                <span style={{ fontWeight: '500' }}>{new Date(petition.createdAt).toLocaleDateString()}</span>
+                            <Calendar size={18} />
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', color: '#718096' }}>Created:</span>
+                                <span style={{ fontWeight: '600', fontSize: '1rem' }}>{new Date(petition.createdAt).toLocaleDateString()}</span>
                             </div>
                         </div>
                     </div>

@@ -4,7 +4,9 @@ const {
     createPetition,
     getPetitions,
     getPetitionById,
-    signPetition
+    signPetition,
+    updatePetition,
+    deletePetition
 } = require('../controllers/petitionController');
 const { protect } = require('../middleware/authMiddleware');
 const { isCitizen, isOfficial } = require('../middleware/roleMiddleware');
@@ -43,7 +45,9 @@ const optionalProtect = async (req, res, next) => {
 
 router.post('/', protect, isCitizen, createPetition);
 router.get('/', optionalProtect, getPetitions);
-router.get('/:id', getPetitionById);
+router.get('/:id', optionalProtect, getPetitionById);
+router.put('/:id', protect, isCitizen, updatePetition);
+router.delete('/:id', protect, isCitizen, deletePetition);
 router.post('/:id/sign', protect, isCitizen, signPetition);
 
 module.exports = router;

@@ -35,7 +35,7 @@ exports.createPetition = async (req, res) => {
 // @access  Public (Behavior changes based on auth role)
 exports.getPetitions = async (req, res) => {
     try {
-        const { location, category, status, page = 1, limit = 10 } = req.query;
+        const { location, category, status, user: creatorId, page = 1, limit = 10 } = req.query;
 
         // Build query object
         const query = {};
@@ -44,6 +44,7 @@ exports.getPetitions = async (req, res) => {
         if (location) query.location = location;
         if (category) query.category = category;
         if (status) query.status = status;
+        if (creatorId) query.creator = creatorId;
 
         // Role & Location-based access control
         if (req.user && req.user.role === 'official') {
@@ -57,7 +58,7 @@ exports.getPetitions = async (req, res) => {
 
         const petitions = await Petition.find(query)
             .populate('creator', 'name email location')
-            .populate('signatures') // Virtual field
+            .populate('signatureCount') // Virtual field
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parseInt(limit));
@@ -85,18 +86,83 @@ exports.getPetitionById = async (req, res) => {
     try {
         const petition = await Petition.findById(req.params.id)
             .populate('creator', 'name email location')
-            .populate('signatures'); // Populate the 'signatures' virtual field which counts signatures
+            .populate('signatureCount'); // Populate the 'signatureCount' virtual field which counts signatures
 
         if (!petition) {
             return res.status(404).json({ message: 'Petition not found' });
         }
 
-        res.status(200).json(petition);
+        // Check if current user has signed (requires manual check since virtual is just a count)
+        let isSigned = false;
+        if (req.user) {
+            const signature = await Signature.findOne({ petition: petition._id, user: req.user._id });
+            isSigned = !!signature;
+        }
+
+        const petitionData = petition.toObject();
+        petitionData.isSigned = isSigned;
+
+        res.status(200).json(petitionData);
     } catch (error) {
         console.error('Error fetching petition:', error);
         if (error.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Petition not found' });
         }
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Update a petition
+// @route   PUT /api/petitions/:id
+// @access  Private (Creator only)
+exports.updatePetition = async (req, res) => {
+    try {
+        let petition = await Petition.findById(req.params.id);
+
+        if (!petition) {
+            return res.status(404).json({ message: 'Petition not found' });
+        }
+
+        // Make sure user is creator
+        if (petition.creator.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Not authorized to update this petition' });
+        }
+
+        petition = await Petition.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json(petition);
+    } catch (error) {
+        console.error('Error updating petition:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Delete a petition
+// @route   DELETE /api/petitions/:id
+// @access  Private (Creator only)
+exports.deletePetition = async (req, res) => {
+    try {
+        const petition = await Petition.findById(req.params.id);
+
+        if (!petition) {
+            return res.status(404).json({ message: 'Petition not found' });
+        }
+
+        // Make sure user is creator
+        if (petition.creator.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Not authorized to delete this petition' });
+        }
+
+        // Delete associated signatures first
+        await Signature.deleteMany({ petition: req.params.id });
+        await petition.deleteOne();
+
+        res.status(200).json({ message: 'Petition removed' });
+    } catch (error) {
+        console.error('Error deleting petition:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

@@ -47,6 +47,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/edit-petition/:id"
+          element={
+            <ProtectedRoute>
+              <CreatePetition />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

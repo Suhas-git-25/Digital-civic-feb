@@ -30,7 +30,7 @@ const PetitionList = () => {
             setLoading(true);
             const data = await petitionService.getAllPetitions(filters);
 
-            let filteredData = data.data || [];
+            let filteredData = data.petitions || [];
 
             // Officials: Only show petitions matching their location (frontend filtering as requested)
             if (user?.role === 'official' && user?.location) {
@@ -77,7 +77,7 @@ const PetitionList = () => {
                         <p>No petitions found matching your criteria.</p>
                     </div>
                 ) : (
-                    <div className="petitions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                    <div className="petitions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
                         {petitions.map(petition => (
                             <PetitionCard key={petition._id} petition={petition} />
                         ))}

@@ -35,6 +35,24 @@ const petitionService = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
+  },
+
+  updatePetition: async (id, petitionData) => {
+    try {
+      const response = await api.put(`/petitions/${id}`, petitionData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deletePetition: async (id) => {
+    try {
+      const response = await api.delete(`/petitions/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   }
 };
 

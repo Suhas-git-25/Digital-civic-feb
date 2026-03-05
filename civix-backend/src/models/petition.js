@@ -38,8 +38,8 @@ petitionSchema.index({ location: 1 });
 petitionSchema.index({ category: 1 });
 petitionSchema.index({ status: 1 });
 
-// Virtual field for signatures if needed
-petitionSchema.virtual('signatures', {
+// Virtual field for signature count
+petitionSchema.virtual('signatureCount', {
     ref: 'Signature',
     localField: '_id',
     foreignField: 'petition',

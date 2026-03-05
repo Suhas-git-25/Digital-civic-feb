@@ -10,12 +10,37 @@ const PetitionCard = ({ petition }) => {
         <div
             className="card petition-card"
             onClick={() => navigate(`/petitions/${petition._id}`)}
-            style={{ cursor: 'pointer', transition: 'transform 0.2s', padding: '20px', borderRadius: '12px', background: '#fff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', marginBottom: '20px' }}
+            style={{
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                padding: '20px',
+                borderRadius: '12px',
+                background: '#fff',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                border: '1px solid #e2e8f0',
+                marginBottom: '12px',
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '170px' // Ensure a base height for the card
+            }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
         >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#2d3748' }}>{petition.title}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', gap: '10px' }}>
+                <h3 style={{
+                    margin: 0,
+                    fontSize: '1.2rem',
+                    color: '#2d3748',
+                    minHeight: '3rem', // Fits approximately 2 lines
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    lineHeight: '1.3'
+                }}>
+                    {petition.title}
+                </h3>
                 <StatusBadge status={petition.status} />
             </div>
 
