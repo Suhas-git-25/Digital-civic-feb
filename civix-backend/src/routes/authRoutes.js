@@ -9,4 +9,4 @@ router.get('/logout', logout);
 router.get('/me', protect, getMe);
 router.post('/google', googleLogin);
 
-module.exports = router;
+module.exports = router; 
