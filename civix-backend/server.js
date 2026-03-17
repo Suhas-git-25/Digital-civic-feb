@@ -72,9 +72,11 @@ app.use((req, res, next) => {
 
 // Routes
 const petitionRoutes = require('./src/routes/petitionRoutes');
+const pollRoutes = require('./src/routes/pollRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/petitions', petitionRoutes);
+app.use('/api/polls', pollRoutes);
 
 // Serve the frontend application
 const path = require('path');
