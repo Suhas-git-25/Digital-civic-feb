@@ -1,38 +1,58 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const jwt = require("jsonwebtoken");
 
-const protect = async (req, res, next) => {
-    let token;
+const protect = (req, res, next) => {
+  let token;
 
-    // Check for token in cookies
-    if (req.cookies.token) {
-        token = req.cookies.token;
-    }
-    // Check for token in Authorization header (Bearer token)
-    else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
+  try {
+    //  1. Get token from cookies
+    if (req.cookies?.token) {
+      token = req.cookies.token;
     }
 
+    //  2. Get token from Authorization header
+    else if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    //  No token found
     if (!token) {
-        return res.status(401).json({ message: 'Not authorized to access this route' });
+      return res.status(401).json({
+        success: false,
+        message: "No token, authorization denied",
+      });
     }
 
-    try {
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    //  3. Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Attach user to request
-        req.user = await User.findById(decoded.id).select('-password');
-
-        if (!req.user) {
-            return res.status(401).json({ message: 'User not found with this id' });
-        }
-
-        next();
-    } catch (error) {
-        console.error('Auth Middleware Error:', error);
-        return res.status(401).json({ message: 'Not authorized, token failed' });
+    //  Safety check (important)
+    if (!decoded.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token payload",
+      });
     }
+
+    //  4. Attach user to request
+    req.user = {
+      id: decoded.id,
+      role: decoded.role,
+      location: decoded.location,
+    };
+
+    next();
+
+  } catch (error) {
+    console.error("Auth Middleware Error:", error.message);
+
+    return res.status(401).json({
+      success: false,
+      message: "Token is not valid",
+    });
+  }
 };
 
 module.exports = { protect };
