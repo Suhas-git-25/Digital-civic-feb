@@ -26,6 +26,16 @@ const petitionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
+    },
+    officialResponse: {
+        type: String,
+    },
+    respondedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    respondedAt: {
+        type: Date,
     }
 }, {
     timestamps: true,

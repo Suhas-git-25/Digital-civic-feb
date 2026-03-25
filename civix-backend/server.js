@@ -73,10 +73,14 @@ app.use((req, res, next) => {
 // Routes
 const petitionRoutes = require('./src/routes/petitionRoutes');
 const pollRoutes = require('./src/routes/pollRoutes');
+const governanceRoutes = require('./src/routes/governanceRoutes');
+const reportRoutes = require('./src/routes/reportRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/petitions', petitionRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/governance', governanceRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Serve the frontend application
 const path = require('path');
