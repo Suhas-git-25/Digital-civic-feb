@@ -1,25 +1,76 @@
 const isCitizen = (req, res, next) => {
-    if (req.user && req.user.role === 'citizen') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Access denied. Citizen role required.' });
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. No user data found",
+      });
     }
+
+    if (req.user.role !== "citizen") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Citizen role required.",
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Role middleware error",
+    });
+  }
 };
 
 const isOfficial = (req, res, next) => {
-    if (req.user && req.user.role === 'official') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Access denied. Official role required.' });
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. No user data found",
+      });
     }
+
+    if (req.user.role !== "official") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Official role required.",
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Role middleware error",
+    });
+  }
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Access denied. Admin role required.' });
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. No user data found",
+      });
     }
+
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin role required.",
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Role middleware error",
+    });
+  }
 };
 
 module.exports = { isCitizen, isOfficial, isAdmin };
