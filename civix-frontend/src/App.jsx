@@ -12,6 +12,8 @@ import PollList from "./pages/polls/PollList";
 import CreatePoll from "./pages/polls/CreatePoll";
 import PollDetail from "./pages/polls/PollDetail";
 
+import ReportsDashboard from "./pages/reports/ReportsDashboard";
+
 function App() {
   return (
     <Router>
@@ -82,6 +84,16 @@ function App() {
           element={
             <ProtectedRoute>
               <PollDetail />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Reports Route */}
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsDashboard />
             </ProtectedRoute>
           }
         />

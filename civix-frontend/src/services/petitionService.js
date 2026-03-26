@@ -46,6 +46,15 @@ const petitionService = {
     }
   },
 
+  respondToPetition: async (id, responseData) => {
+    try {
+      const response = await api.post(`/petitions/${id}/respond`, responseData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   deletePetition: async (id) => {
     try {
       const response = await api.delete(`/petitions/${id}`);

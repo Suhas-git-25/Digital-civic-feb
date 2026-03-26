@@ -4,7 +4,7 @@ import { LogOut, Home, FileText, Vote, Users, MessageSquare, Settings } from 'lu
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -12,9 +12,8 @@ const Sidebar = () => {
         { name: 'Dashboard', path: '/dashboard', icon: <Home size={18} /> },
         { name: 'Petitions', path: '/petitions', icon: <FileText size={18} /> },
         { name: 'Polls', path: '/polls', icon: <Vote size={18} /> },
-        { name: 'Officials', path: '#', icon: <Users size={18} /> },
-        { name: 'Reports', path: '#', icon: <MessageSquare size={18} /> },
-        { name: 'Settings', path: '#', icon: <Settings size={18} /> },
+        { name: 'Reports', path: '/reports', icon: <MessageSquare size={18} /> }
+        // Settings removed or hidden if unneeded, kept minimal
     ];
 
     return (

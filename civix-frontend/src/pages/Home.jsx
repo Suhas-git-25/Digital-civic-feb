@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import "../styles/home.css";
 import heroImg from "../assets/heroImg.png";
 import { useAuth } from "../context/AuthContext";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function Home() {
   const { isAuthenticated } = useAuth();
@@ -66,21 +67,58 @@ function Home() {
 
         <div className="home-features">
           <div className="home-card">
-            <div className="home-icon">🏛️</div>
+            <div className="home-icon">
+              <i className="fa-solid fa-file-signature" style={{ fontSize: '38px', background: 'linear-gradient(135deg, var(--primary), #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}></i>
+            </div>
             <h3>Create Petitions</h3>
-            <p>Raise your voice on important issues.</p>
+            <p>Raise your voice on important issues and document community concerns.</p>
           </div>
 
           <div className="home-card">
-            <div className="home-icon">🗳️</div>
+            <div className="home-icon">
+              <i className="fa-solid fa-check-to-slot" style={{ fontSize: '38px', background: 'linear-gradient(135deg, var(--primary), #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}></i>
+            </div>
             <h3>Vote in Polls</h3>
-            <p>Participate in civic decisions.</p>
+            <p>Participate in official civic decisions and influence local policy.</p>
           </div>
 
           <div className="home-card">
-            <div className="home-icon">📊</div>
+            <div className="home-icon">
+              <i className="fa-solid fa-chart-line" style={{ fontSize: '38px', background: 'linear-gradient(135deg, var(--primary), #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}></i>
+            </div>
             <h3>Track Progress</h3>
-            <p>See real-time government responses.</p>
+            <p>Observe real-time government responses and community engagement.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="home-about-section" id="about">
+        <div className="home-about-container">
+          <div className="home-about-content">
+            <h2>Bridging the gap between <br/><span>Citizens and Governance</span></h2>
+            <p>Civix was built on the belief that everyone deserves a voice in their community. We provide a transparent, accessible platform for digital civic engagement. From starting petitions that matter to participating in polls that shape policy, Civix puts the power of democracy directly into your hands.</p>
+            <ul className="home-about-list">
+              <li><i className="fa-solid fa-shield-halved"></i> Secure & Transparent</li>
+              <li><i className="fa-solid fa-users-viewfinder"></i> Community Driven</li>
+              <li><i className="fa-solid fa-scale-balanced"></i> Direct Official Engagement</li>
+            </ul>
+          </div>
+          <div className="home-about-visual">
+             <div className="about-glass-card">
+                <div className="stat">
+                  <h3>12.5K+</h3>
+                  <p>Active Petitions</p>
+                </div>
+                <div className="stat">
+                  <h3>850+</h3>
+                  <p>Resolved Issues</p>
+                </div>
+                <div className="stat" style={{ gridColumn: 'span 2' }}>
+                  <h3>100%</h3>
+                  <p>Commitment to Transparency</p>
+                </div>
+             </div>
           </div>
         </div>
       </section>

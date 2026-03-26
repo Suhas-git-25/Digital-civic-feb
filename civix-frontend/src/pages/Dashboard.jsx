@@ -6,12 +6,14 @@ import Sidebar from "../components/Sidebar";
 import petitionService from "../services/petitionService";
 import { Loader2, Edit, Trash2, XCircle, Eye } from "lucide-react";
 import StatusBadge from "../components/petitions/StatusBadge";
+import bannerImg from "../assets/image.png";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [myPetitions, setMyPetitions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     if (user?._id) {
@@ -22,10 +24,11 @@ const Dashboard = () => {
   const fetchMyPetitions = async () => {
     try {
       setLoading(true);
-      const data = await petitionService.getAllPetitions({ user: user._id });
+      const params = user?.role === 'citizen' ? { user: user._id } : { location: user?.location };
+      const data = await petitionService.getAllPetitions(params);
       setMyPetitions(data.petitions || []);
     } catch (err) {
-      console.error("Error fetching my petitions:", err);
+      console.error("Error fetching petitions:", err);
     } finally {
       setLoading(false);
     }
@@ -71,6 +74,28 @@ const Dashboard = () => {
           )}
         </div>
 
+        {/* Dashboard Vibrant Banner */}
+        <div style={{
+          width: '100%',
+          height: '240px',
+          borderRadius: 'var(--radius-xl)',
+          marginBottom: '40px',
+          backgroundImage: `linear-gradient(135deg, rgba(79, 70, 229, 0.65), rgba(59, 130, 246, 0.85)), url(${bannerImg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '40px',
+          color: 'white',
+          boxShadow: '0 15px 35px -10px rgba(59, 130, 246, 0.4)'
+        }}>
+          <h1 style={{ fontSize: '2.8rem', fontWeight: 800, margin: '0 0 10px 0', letterSpacing: '-1px' }}>Make an Impact Today</h1>
+          <p style={{ fontSize: '1.15rem', margin: 0, opacity: 0.95, maxWidth: '650px', lineHeight: 1.5, fontWeight: 500 }}>
+            {user?.role === 'citizen' ? 'Your voice matters. Track local issues, engage with your community, and see the change happen directly from your dashboard.' : 'Manage public petitions effectively. Ensure transparency and deliver high-quality governance to your community.'}
+          </p>
+        </div>
+
         {/* Stats Cards - Role Based */}
         <div className="stats-grid">
           {user?.role === 'citizen' ? (
@@ -91,16 +116,16 @@ const Dashboard = () => {
           ) : (
             <>
               <div className="card">
-                <h3>0</h3>
-                <p>Pending Petitions</p>
+                <h3>{myPetitions.length}</h3>
+                <p>Total Petitions</p>
               </div>
               <div className="card">
-                <h3>0</h3>
-                <p>Official Responses</p>
+                <h3>{myPetitions.filter(p => p.status === 'active' || p.status === 'under_review').length}</h3>
+                <p>Active & Under Review</p>
               </div>
               <div className="card">
-                <h3>0</h3>
-                <p>Local User Base</p>
+                <h3>{myPetitions.filter(p => p.status === 'closed').length}</h3>
+                <p>Closed Petitions</p>
               </div>
             </>
           )}
@@ -108,7 +133,21 @@ const Dashboard = () => {
 
         {/* Activity Section / My Petitions */}
         <div className="activity-section">
-          <h3>{user?.role === 'citizen' ? 'My Petitions' : 'Unresolved Issues in Your Jurisdiction'}</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h3 style={{ margin: 0 }}>{user?.role === 'citizen' ? 'My Petitions' : 'Unresolved Issues in Your Jurisdiction'}</h3>
+            {user?.role === 'official' && (
+              <select 
+                value={statusFilter} 
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', outline: 'none' }}
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="under_review">Under Review</option>
+                <option value="closed">Closed</option>
+              </select>
+            )}
+          </div>
 
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
@@ -169,9 +208,35 @@ const Dashboard = () => {
               </div>
             )
           ) : (
-            <div className="empty-state">
-              <p>No issues found for {user?.location || 'your area'}.</p>
-            </div>
+            (statusFilter !== 'all' ? myPetitions.filter(p => p.status === statusFilter) : myPetitions).length === 0 ? (
+              <div className="empty-state">
+                <p>No issues found for {user?.location || 'your area'} with the selected filters.</p>
+              </div>
+            ) : (
+              <div className="petitions-list" style={{ marginTop: '20px' }}>
+                {(statusFilter !== 'all' ? myPetitions.filter(p => p.status === statusFilter) : myPetitions).map(petition => (
+                  <div key={petition._id} className="card" style={{ marginBottom: '15px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>{petition.title}</h4>
+                      <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                        <StatusBadge status={petition.status} />
+                        <span style={{ fontSize: '0.85rem', color: '#718096' }}>{petition.signatureCount || 0} signatures</span>
+                        <span style={{ fontSize: '0.85rem', color: '#718096' }}>{new Date(petition.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button
+                        onClick={() => navigate(`/petitions/${petition._id}`)}
+                        title="View & Respond"
+                        style={{ background: '#edf2f7', border: 'none', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}
+                      >
+                        <Eye size={18} color="#4a5568" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </main>

@@ -18,6 +18,9 @@ const PetitionDetail = () => {
     const [loading, setLoading] = useState(true);
     const [signing, setSigning] = useState(false);
     const [error, setError] = useState(null);
+    const [responseMessage, setResponseMessage] = useState('');
+    const [responseStatus, setResponseStatus] = useState('under_review');
+    const [submittingResponse, setSubmittingResponse] = useState(false);
 
     useEffect(() => {
         fetchPetition();
@@ -56,6 +59,37 @@ const PetitionDetail = () => {
             toast.error(err.message || 'Failed to sign petition.');
         } finally {
             setSigning(false);
+        }
+    };
+
+    const handleOfficialResponse = async (e) => {
+        e.preventDefault();
+        if (!responseMessage.trim()) {
+            toast.error('Response message is required.');
+            return;
+        }
+
+        try {
+            setSubmittingResponse(true);
+            await petitionService.respondToPetition(id, {
+                message: responseMessage,
+                status: responseStatus
+            });
+            toast.success('Official response submitted successfully.');
+            // Optimistic UI update
+            setPetition(prev => ({
+                ...prev,
+                status: responseStatus,
+                officialResponse: {
+                    message: responseMessage,
+                    createdAt: new Date().toISOString()
+                }
+            }));
+            fetchPetition();
+        } catch (err) {
+            toast.error(err.message || 'Failed to submit response.');
+        } finally {
+            setSubmittingResponse(false);
         }
     };
 
@@ -136,6 +170,62 @@ const PetitionDetail = () => {
                         <h3 style={{ fontSize: '1.25rem', color: '#2d3748', marginBottom: '15px', borderBottom: '2px solid #edf2f7', paddingBottom: '10px' }}>Description</h3>
                         <p style={{ color: '#4a5568', lineHeight: '1.8', whiteSpace: 'pre-wrap', fontSize: '1.1rem' }}>{petition.description}</p>
                     </div>
+
+                    {/* Official Response View */}
+                    {petition.officialResponse && (
+                        <div style={{ marginBottom: '40px', padding: '20px', background: '#e6fffa', borderLeft: '4px solid #38b2ac', borderRadius: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#234e52', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ padding: '4px 10px', background: '#319795', color: 'white', borderRadius: '12px', fontSize: '0.75rem', textTransform: 'uppercase' }}>Official Response</span>
+                                </h3>
+                                <div style={{ fontSize: '0.85rem', color: '#285e61' }}>
+                                    {new Date(petition.officialResponse?.createdAt || petition.updatedAt).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <p style={{ margin: 0, color: '#285e61', lineHeight: '1.6' }}>{typeof petition.officialResponse === 'string' ? petition.officialResponse : petition.officialResponse?.message}</p>
+                        </div>
+                    )}
+
+                    {/* Official Action Form */}
+                    {user?.role === 'official' && !petition.officialResponse && (
+                        <div style={{ marginBottom: '40px', padding: '25px', background: '#f7fafc', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+                            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.25rem', color: '#2d3748' }}>Submit Official Response</h3>
+                            <form onSubmit={handleOfficialResponse}>
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#4a5568' }}>Update Petition Status</label>
+                                    <select
+                                        value={responseStatus}
+                                        onChange={(e) => setResponseStatus(e.target.value)}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', outline: 'none' }}
+                                    >
+                                        <option value="under_review">Under Review</option>
+                                        <option value="closed">Closed / Resolved</option>
+                                        <option value="active">Active (No status change)</option>
+                                    </select>
+                                </div>
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#4a5568' }}>Response Message</label>
+                                    <textarea
+                                        required
+                                        rows="4"
+                                        value={responseMessage}
+                                        onChange={(e) => setResponseMessage(e.target.value)}
+                                        placeholder="Explain the action being taken or the reason for closure..."
+                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', outline: 'none', resize: 'vertical' }}
+                                    ></textarea>
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={submittingResponse}
+                                    className="primary-btn"
+                                    style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                >
+                                    {submittingResponse ? <Loader2 className="animate-spin" size={18} /> : null}
+                                    Submit Response
+                                </button>
+                            </form>
+                        </div>
+                    )}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '30px', borderTop: '1px solid #edf2f7' }}>
                         <div style={{ color: '#718096' }}>
