@@ -190,7 +190,7 @@ Digital-civic-nov-team01/
 
 ## 📬 Contact
 
-📧 [your-email@example.com](mailto:your-email@example.com)
+📧 [your-email@example.com](mailto:your-krishnasuhasmaddipati@gmail.com)
 
 ---
 
