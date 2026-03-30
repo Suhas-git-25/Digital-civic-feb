@@ -1,32 +1,45 @@
 const Petition = require("../models/Petition");
 const AdminLog = require("../models/AdminLog");
 
-//  GET PETITIONS (OFFICIAL)
-exports.getPetitions = async (req, res) => {
+// GET PETITIONS FOR OFFICIAL
+exports.getPetitionsForOfficial = async (req, res) => {
   try {
     const { status } = req.query;
+    const location = req.user.location;
 
-    let filter = {
-      location: req.user.location, // restrict by location
-    };
+    if (!location) {
+      return res.status(403).json({ message: "Official location not set" });
+    }
+
+    let filter = { location };
 
     if (status) {
       filter.status = status;
     }
 
-    const petitions = await Petition.find(filter).populate("respondedBy", "name");
+    const petitions = await Petition.find(filter)
+      .populate("respondedBy", "name")
+      .sort({ createdAt: -1 });
 
     res.json(petitions);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    console.error("getPetitionsForOfficial error:", error);
+    res.status(500).json({ message: "Server error retrieving petitions" });
   }
 };
 
-//  RESPOND TO PETITION
+// RESPOND TO PETITION
 exports.respondToPetition = async (req, res) => {
   try {
     const { id } = req.params;
     const { response, status } = req.body;
+    const official = req.user;
+
+    if (!response || !status) {
+      return res
+        .status(400)
+        .json({ message: "Response text and status are required" });
+    }
 
     const petition = await Petition.findById(id);
 
@@ -34,28 +47,37 @@ exports.respondToPetition = async (req, res) => {
       return res.status(404).json({ message: "Petition not found" });
     }
 
-    //  LOCATION SECURITY
-    if (petition.location !== req.user.location) {
-      return res.status(403).json({ message: "Unauthorized access" });
+    if (petition.location !== official.location) {
+      return res.status(403).json({
+        message: "You can only respond to petitions in your location",
+      });
+    }
+
+    const validStatuses = ["active", "under_review", "closed"];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
     }
 
     petition.officialResponse = response;
     petition.status = status;
-    petition.respondedBy = req.user._id;
+    petition.respondedBy = official._id;
     petition.respondedAt = new Date();
 
     await petition.save();
 
-    //  LOG ACTION
     await AdminLog.create({
-      action: "Responded to petition",
-      user: req.user._id,
+      action: `Responded to petition: updated status to ${status}`,
+      user: official._id,
       petition: petition._id,
     });
 
-    res.json({ message: "Response submitted successfully", petition });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({
+      message: "Response submitted successfully",
+      petition,
+    });
+  } catch (error) {
+    console.error("respondToPetition error:", error);
+    res.status(500).json({ message: "Server error responding to petition" });
   }
 };

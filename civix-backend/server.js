@@ -75,10 +75,14 @@ app.use((req, res, next) => {
 // EXISTING ROUTES
 const petitionRoutes = require('./src/routes/petitionRoutes');
 const pollRoutes = require('./src/routes/pollRoutes');
+const governanceRoutes = require('./src/routes/governanceRoutes');
+const reportRoutes = require('./src/routes/reportRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/petitions', petitionRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/governance', governanceRoutes);
+app.use('/api/reports', reportRoutes);
 
 // NEW ROUTES (Milestone 4 ADD)
 app.use('/api/governance', governanceRoutes);
